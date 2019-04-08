@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Unfold location track test</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+   crossorigin=""></script>
+<style>  body {
+        padding: 0;
+        margin: 0;
+        }
+        html, body, #map {
+        height: 100%;
+    }
+	h1 {font-family: 'Rockwell', serif;
+	font-weight: 100;
+	text-align:center;}
+</style>   
+</head>
+<body>
+
+<h1>Unfold.</h1>
+<div id="map"></div>
+
+<script>
+//var mymap = L.map('map').setView([51.505, -0.09], 13);
+//L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+//    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+//    maxZoom: 18,
+//    id: 'mapbox.streets',
+//    accessToken: 'pk.eyJ1IjoidW5mb2xkIiwiYSI6ImNqdTg2cjNpODB3c2gzeW56NWc3dHZuZmgifQ.DUNTNCFGaSITImNngIRK6w'
+//}).addTo(mymap);
+
+var map = L.map('map').fitWorld();
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoidW5mb2xkIiwiYSI6ImNqdTg2cjNpODB3c2gzeW56NWc3dHZuZmgifQ.DUNTNCFGaSITImNngIRK6w', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox.streets'
+	}).addTo(map);
+
+	var circle = L.circle([51.9, 6.2], {
+    color: 'orange',
+    fillColor: 'orange',
+    fillOpacity: 0.5,
+    radius: 200
+}).addTo(map);
+
+map.locate({setView: true, maxZoom: 16});
+
+
+
+// placeholders for the L.marker and L.circle representing user's current position and accuracy    
+    var current_position, current_accuracy;
+
+    function onLocationFound(e) {
+      // if position defined, then remove the existing position marker and accuracy circle from the map
+      if (current_position) {
+          map.removeLayer(current_position);
+          map.removeLayer(current_accuracy);
+      }
+
+      var radius = e.accuracy / 2;
+	
+      current_position = L.marker(e.latlng).addTo(map)
+        .bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+      current_accuracy = L.circle(e.latlng, radius,  {
+	color: 'grey',
+    fillColor: 'grey',
+    fillOpacity: 0.5}).addTo(map);
+    }
+
+    function onLocationError(e) {
+      alert(e.message);
+    }
+
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
+
+    // wrap map.locate in a function    
+    function locate() {
+      map.locate({setView: true, maxZoom: 16});
+    }
+
+    // call locate every 30 seconds... forever
+    setInterval(locate, 30000);
+	
+	
+
+</script>
+
+</body>
+</html>

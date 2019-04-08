@@ -117,7 +117,7 @@ map.locate({setView: true, maxZoom: 16});
 
     // wrap map.locate in a function
     function locate() {
-      map.locate({setView: true, maxZoom: 16, enableHighAccuracy: true});
+      map.locate({setView: false, maxZoom: 16, enableHighAccuracy: true});
     }
 
     // call locate every 10 seconds... forever

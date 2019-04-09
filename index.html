@@ -17,28 +17,30 @@
     <!-- Make sure you put this AFTER Leaflet's CSS -->
  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
    integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-   crossorigin=""></script>
-<style>  body {
+   crossorigin="">
+ </script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<style> body {
         padding: 0;
         margin: 0;
         }
         html, body, #map {
         height: 100%;
-    }
-	h1 {font-family: 'Rockwell', serif;
-	font-weight: 100;
-	text-align:center;}
-	span {
-	color: #BDBDBD;
-	font-style: italic;
-	}
+        }
+	      h1 {font-family: 'Rockwell', serif;
+	      font-weight: 100;
+	      text-align:center;}
+      	span {
+      	color: #BDBDBD;
+      	font-style: italic;
+      	}
 </style>
 </head>
 <body>
 
-<h1>unfold. <span>your world.</span></h1>
+<h1><a onclick="scrollWin()">unfold. <span>your world.</span></a></h1>
 <div id="map"></div>
-<button id="zoomtolocation" onclick=;>Zoom location</button>
+
 
 <script>
 //var mymap = L.map('map').setView([51.505, -0.09], 13);
@@ -59,12 +61,37 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 		id: 'mapbox.streets'
 	}).addTo(map);
 
+// hotspots
 	var circle = L.circle([51.9, 6.2], {
     color: 'orange',
     fillColor: 'orange',
     fillOpacity: 0.5,
-    radius: 200
+    radius: 20
 }).addTo(map);
+
+var circle2 = L.circle([52.25072860750063, 6.160924136638641], {
+  color: 'orange',
+  fillColor: 'orange',
+  fillOpacity: 0.5,
+  radius: 20
+}).addTo(map);
+
+//  legend
+var legend1 = L.control({position: 'topleft'});
+legend1.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend1');
+    div.innerHTML = '<img src="img/search@2x.png" width= "100%">';
+    return div;
+};
+legend1.addTo(map);
+
+var legend2 = L.control({position: 'bottomleft'});
+legend2.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend2');
+    div.innerHTML = '<img src="img/filters@2x.png">';
+    return div;
+};
+legend2.addTo(map);
 
 // icons
 var locationIcon = L.icon({
@@ -124,6 +151,75 @@ map.locate({setView: true, maxZoom: 16});
     // call locate every 10 seconds... forever
     setInterval(locate, 10000);
 
+///////////////////////////////////////////////////////////
+    // Script for adding marker on map click
+    map.on('click', onMapClick);
+
+    function onMapClick(e) {
+
+        var geojsonFeature = {
+
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+                    "type": "Point",
+                    "coordinates": [e.latlng.lat, e.latlng.lng]
+            }
+        }
+
+        var marker;
+
+        L.geoJson(geojsonFeature, {
+
+            pointToLayer: function(feature, latlng){
+
+                marker = L.circle(e.latlng, {
+                    draggable: true,
+                    color: 'orange',
+                    fillColor: 'orange',
+                    fillOpacity: 0.5,
+                    radius: 20
+                }).bindPopup("<input type='button' value='Catch Hotspot!' class='marker-delete-button'/>");
+
+                marker.on("popupopen", onPopupOpen);
+
+                return marker;
+            }
+        }).addTo(map);
+    }
+    // Function to handle delete as well as other events on marker popup open
+
+    function onPopupOpen() {
+
+        var tempMarker = this;
+
+        // To remove marker on click of delete button in the popup of marker
+        $(".marker-delete-button:visible").click(function () {
+            map.removeLayer(tempMarker);
+        });
+    }
+// add and remove markers
+/*var theMarker = {};
+
+  map.on('click',function(e){
+    lat = e.latlng.lat;
+    lon = e.latlng.lng;
+
+    console.log("You clicked the map at LAT: "+ lat+" and LONG: "+lon );
+        //Clear existing marker,
+
+      //  if (theMarker != undefined) {
+      //        map.removeLayer(theMarker);
+      //  };
+
+    //Add a marker to show where you clicked.
+     theMarker = L.marker([lat,lon]).addTo(map);
+});*/
+
+// scroll to bottom
+function scrollWin() {
+  window.scrollTo(0,document.body.scrollHeight);
+}
 
 </script>
 
